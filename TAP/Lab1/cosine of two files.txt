@@ -1,7 +1,10 @@
 Distanța între documente Fie două documente text, 𝐹1și 𝐹2, și {𝑐1,𝑐2,...,𝑐𝑛} mulțimea cuvintelor care apar în cel puțin unul din cele două
 documente. Pentru 1 ≤ 𝑖 ≤ 𝑛, fie 𝑣𝑖1 , 𝑣𝑖2 numărul de apariții al cuvântului 𝑖în primul, respectiv în al doilea document. Distanța cosinus 
-dintre cele două documente, notată 𝑑𝑐𝑜𝑠(𝐹1,𝐹2), dintre 𝐹1și 𝐹2 se calculează după formula: 𝑑𝑐𝑜𝑠(𝐹1,𝐹2) = (∑𝑣𝑖1𝑣𝑖21)/(√∑𝑣𝑖1^2 * √∑𝑣𝑖2^2)
+dintre cele două documente, notată 𝑑𝑐𝑜𝑠(𝐹1,𝐹2), dintre 𝐹1 și 𝐹2 se calculează după formula: 𝑑𝑐𝑜𝑠(𝐹1,𝐹2) = (∑𝑣𝑖1𝑣𝑖21)/(√∑𝑣𝑖1^2 * √∑𝑣𝑖2^2)
 Fiind date două fișiere text, F1 și F2, să se calculeze distanța cosinus dintre cele două fișiere. Fiecare dintre cele două fișiere va fi 
-parcurs o singură dată. Cuvintele dintr-un fișier sunt separate prin spații, virgulă, punct. Exemplu: dacă  𝐹1 conține textul: primul laborator 
-primul exercitiu și 𝐹2 conține textul: primul exercitiu usor{𝑐1=′𝑝𝑟𝑖𝑚𝑢𝑙′,𝑐2=′𝑙𝑎𝑏𝑜𝑟𝑎𝑡𝑜𝑟′,𝑐3=′𝑒𝑥𝑒𝑟𝑐𝑖𝑡𝑖𝑢′𝑐4=′𝑢𝑠𝑜𝑟′}{𝑣11=2,𝑣21=1,𝑣31=1,𝑣41=0}
-{𝑣12=1,𝑣22=0,𝑣32=1,𝑣42=1} 𝑑𝑐𝑜𝑠(𝐹1,𝐹2)=2∗1+1∗0+1∗1+0∗1/(√6√3)=0,7071
+parcurs o singură dată. Cuvintele dintr-un fișier sunt separate prin spații, virgulă, punct.
+Exemplu: dacă  𝐹1 conține textul: primul laborator primul exercitiu și 𝐹2 conține textul: primul exercitiu usor
+{𝑐1=′𝑝𝑟𝑖𝑚𝑢𝑙′,𝑐2=′𝑙𝑎𝑏𝑜𝑟𝑎𝑡𝑜𝑟′,𝑐3=′𝑒𝑥𝑒𝑟𝑐𝑖𝑡𝑖𝑢′𝑐4=′𝑢𝑠𝑜𝑟′}
+{𝑣11=2,𝑣21=1,𝑣31=1,𝑣41=0}
+{𝑣12=1,𝑣22=0,𝑣32=1,𝑣42=1}
+𝑑𝑐𝑜𝑠(𝐹1,𝐹2) = 2∗1+1∗0+1∗1+0∗1/(√6√3) = 0,7071
