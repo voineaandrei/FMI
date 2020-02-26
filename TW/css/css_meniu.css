@@ -1,0 +1,50 @@
+body { 
+	counter-reset: s1;
+}
+
+h2 {
+	counter-reset: s2;
+}
+
+h2::before {
+	counter-increment: s1;
+	content: "Secțiunea " counter(s1) ". ";
+}
+
+h3::before {
+	counter-increment: s2;
+	content: counter(s1) "." counter(s2) " ";
+}
+
+.bi{
+	border: 45px solid transparent;
+    -webkit-border-image: url("./Images/qmark.jpg") 45 round;
+    -moz-border-image: url("./Images/qmark.jpg") 45 round;
+    border-image: url("./Images/qmark.jpg") 45 round;
+    font-family: myFont, serif;
+    color: #ffc30f;
+    width: 500px;
+    margin: 30px auto 30px auto;
+    overflow: hidden;
+    resize: both;
+}
+.ardei {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+}
+body h2 { 
+	font-size: 45px; 
+	text-align: center;
+}
+body h3 { 
+	font-size: 30px;
+}
+
+ul li { display: inline;}
+hr {
+	color: red;
+	margin: 1em;
+}
+
+section p, ul { padding-left: 3em;}
