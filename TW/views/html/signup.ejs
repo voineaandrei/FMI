@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ro">
+	<head>
+		<title>Sign up</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="Inregistrarea pe site-ul pizzeriei Haștemele.">
+		<meta name="keywords" content="pizzeria, Haștemele, pizza, burgers, salate, meniu">
+		<meta name="author" content="Pizzeria Haștemele">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="shortcut icon" type="image/x-icon" href="./favicon/favicon.ico">
+		<link rel="stylesheet" type="text/css" href="./css/all_css.css">
+		<link rel="stylesheet" type="text/css" href="./css/nav_bar.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<script src ="./css/nav.js"></script>
+	</head>
+	<body>
+		<header>
+			<%- include("../fragmente/header") %>
+		</header>
+		<p> Daca nu ai cont, te poti inregistra aici!! </p>
+		<form method="post" class="date">
+			<p>
+			<label>
+				Nume: <input type="text" name="nume" value="">
+			</label>
+			</p>
+			<p>
+			<label>
+				Username: <input type="text" name="username" value="">
+			</label>
+			</p>
+			<p>
+			<label>
+				Parola: <input type="password" name="parola" value="">
+			</label>
+			</p>
+			<p>		
+			<input type="submit" value="Submit">
+			</p>
+		</form>
+	</body>
+</html>
