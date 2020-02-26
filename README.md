@@ -1,2 +1,2 @@
-<b> homeworks fmi </b>
+<b> Homeworks & Projects </b>
 2nd year
