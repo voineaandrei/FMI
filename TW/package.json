@@ -1,0 +1,26 @@
+{
+  "name": "proiect5",
+  "version": "1.0.0",
+  "description": "Proiect tehnici web - pizzeria hastemele",
+  "main": "index.js",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "formidable": "^1.2.1",
+    "nodemailer": "^6.4.2",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "proiect",
+    "pizzerie",
+    "hastemele"
+  ],
+  "author": "Voinea Andrei",
+  "license": "ISC"
+}
