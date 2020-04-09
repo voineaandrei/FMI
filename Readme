@@ -1,1 +1,9 @@
-Readme
+*
+Proiectul meu presupune creearea unui App Store. Vom avea urmatoarele clase derivate din clasa "Application":
+- Movie
+- Book
+- Audiobook
+- Game
+
+Pe langa aceste
+*
