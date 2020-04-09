@@ -16,6 +16,6 @@ Avem 2 clase service: <b>UserService</b>, <b>ApplicationService</b> si urmatoare
 * addCard
 * showUsers
 * add(Application)
-* add(List <Application>)
+* add(List Application)
 * add(User)
-* add(List <User>)
+* add(List User)
