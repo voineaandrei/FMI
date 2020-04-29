@@ -3,15 +3,22 @@ import proiect.appstore.applications.*;
 import proiect.appstore.user.Card;
 import proiect.appstore.user.ExpirationDate;
 import proiect.appstore.user.User;
+import proiect.service.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static proiect.service.ApplicationService.applicationService;
-import static proiect.service.UserService.userService;
 
 public class Main {
-    public static void main(String[] args) {
+    private static ApplicationService applicationService = ApplicationService.getApplicationService();
+    private static UserService userService = UserService.getUserService();
+    private static AudiobookCSVService audiobookCSVService = AudiobookCSVService.getAudiobookCSVService();
+    private static BookCSVService bookCSVService = BookCSVService.getBookCSVService();
+    private static MovieCSVService movieCSVService = MovieCSVService.getMovieCSVService();
+    private static GameCSVService gameCSVService = GameCSVService.getGameCSVService();
+    private static UserCSVService userCSVService = UserCSVService.getUserCSVService();
+
+    void Etapa1(){
         // Useri
         List<User> users = new ArrayList<>();
         users.add(new User("Voinea", "Andrei", "VAndi"));
@@ -40,7 +47,7 @@ public class Main {
         // Afisam userii
         userService.showUsers();
 
-        // Incercam sa arat rating-ul aplicatiei, dar nu a fost votat, asa ca o sa arate mesaj corespunzator
+        // Incercam sa aratam rating-ul aplicatiei, dar nu a fost votat, asa ca o sa arate mesaj corespunzator
         applicationService.showRating("Valorant");
         userService.giveRating("VAndi", "Valorant", 5);
         applicationService.showRating("Valorant");
@@ -51,5 +58,24 @@ public class Main {
         userService.giveRating("VAndi", "Game of Thrones", 4);
         // Incercam sa dam rating cu un username care nu exista
         userService.giveRating("Usi", "Sherlock Holmes", 4);
+    }
+
+
+    public static void Etapa2() {
+        userCSVService.readData();
+        audiobookCSVService.readData();
+        bookCSVService.readData();
+        gameCSVService.readData();
+        movieCSVService.readData();
+    }
+
+    public static void main(String[] args) {
+        Etapa2();
+        userService.addCard("VAndi", new Card(12341, 230.67f, new ExpirationDate(5,2077)));
+        userService.buyApplication("VAndi", "Valorant");
+        applicationService.showApplications();
+        System.out.println();
+        userService.showUsers();
+        userService.giveRating("VAndi", "Valorant", 5);
     }
 }

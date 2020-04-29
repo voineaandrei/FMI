@@ -1,14 +1,18 @@
 package proiect.appstore.applications;
 
+import proiect.service.AuditService;
+
 public class Movie extends Application{
     private String directorName, subtitles;
     private boolean forKids;
-
+    private AuditService auditService = AuditService.getAuditService();
 
     // CONSTRUCTORS
 
     public Movie(){
         this("", "", false);
+        this.type = "Movie";
+        auditService.writeData("Movie - add");
     }
 
     public Movie(String directorName, String subtitles, boolean forKids) {
@@ -16,6 +20,8 @@ public class Movie extends Application{
         this.directorName = directorName;
         this.subtitles = subtitles;
         this.forKids = forKids;
+        this.type = "Movie";
+        auditService.writeData("Movie - add");
     }
 
     public Movie(String publisherName, String applicationName, float price, String directorName, String subtitles, boolean forKids) {
@@ -23,6 +29,8 @@ public class Movie extends Application{
         this.directorName = directorName;
         this.subtitles = subtitles;
         this.forKids = forKids;
+        this.type = "Movie";
+        auditService.writeData("Movie - add");
     }
 // SETTERS AND GETTERS
 

@@ -1,13 +1,18 @@
 package proiect.appstore.applications;
 
+import proiect.service.AuditService;
+
 public class Book extends Application {
     private int numberOfPages;
     private String genre, author;
+    private AuditService auditService = AuditService.getAuditService();
 
     // CONSTRUCTORS
 
     public Book() {
         this(0, "", "");
+        this.type = "Book";
+        auditService.writeData("Book - add");
     }
 
     public Book(int numberOfPages, String genre, String author) {
@@ -15,6 +20,8 @@ public class Book extends Application {
         this.numberOfPages = numberOfPages;
         this.genre = genre;
         this.author = author;
+        this.type = "Book";
+        auditService.writeData("Book - add");
     }
 
     public Book(String publisherName, String applicationName, float price, int numberOfPages, String genre, String author) {
@@ -22,6 +29,8 @@ public class Book extends Application {
         this.numberOfPages = numberOfPages;
         this.genre = genre;
         this.author = author;
+        this.type = "Book";
+        auditService.writeData("Book - add");
     }
 
 

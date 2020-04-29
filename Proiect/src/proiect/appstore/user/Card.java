@@ -1,27 +1,32 @@
 package proiect.appstore.user;
 
+import proiect.service.AuditService;
+
 public class Card {
     private long cardNumber;
     private float money;
     private ExpirationDate expirationDate;
-
+    private AuditService auditService = AuditService.getAuditService();
     // CONSTRUCTORS
 
     public Card(){
         this(0, 0);
         this.expirationDate = new ExpirationDate();
+        auditService.writeData("Card - add");
     }
 
     public Card(long cardNumber, float money) {
         this.cardNumber = cardNumber;
         this.money = money;
         this.expirationDate = new ExpirationDate();
+        auditService.writeData("Card - add");
     }
 
     public Card(long cardNumber, float money, ExpirationDate expirationDate) {
         this.cardNumber = cardNumber;
         this.money = money;
         this.expirationDate = expirationDate;
+        auditService.writeData("Card - add");
     }
 
     @Override

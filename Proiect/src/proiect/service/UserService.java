@@ -7,22 +7,29 @@ import proiect.repository.UserRepository;
 
 import java.util.List;
 
-import static proiect.service.ApplicationService.applicationService;
-
 
 public class UserService {
-    public static UserService userService = new UserService();
+    private static UserService userService = new UserService();
     private UserRepository userRepository = new UserRepository();
+    private ApplicationService applicationService = ApplicationService.getApplicationService();
+    private AuditService auditService = AuditService.getAuditService();
+
+    public static UserService getUserService(){
+        return userService;
+    }
 
     public void add(User user) {
+        auditService.writeData("User - add");
         userRepository.add(user);
     }
 
     public void add(List<User> users) {
+        auditService.writeData("User - add");
         userRepository.add(users);
     }
 
     public boolean existsUser(String username){
+        auditService.writeData("User - existsUser");
         for (User user : userRepository.getUsers())
             if (user.getUsername().equalsIgnoreCase(username))
                 return true;
@@ -30,6 +37,7 @@ public class UserService {
     }
 
     public void addCard(String username, Card card) {
+        auditService.writeData("User - addCard");
         for (User user : userRepository.getUsers())
             if (user.getUsername().equalsIgnoreCase(username)) {
                 user.setCard(card);
@@ -38,6 +46,7 @@ public class UserService {
     }
 
     public void buyApplication(String username, String applicationName) {
+        auditService.writeData("User - buyApplication");
         if (!applicationService.existsApplication(applicationName)) {
             System.out.println("Nu exista aplicatia " + applicationName);
             return;
@@ -66,6 +75,7 @@ public class UserService {
     }
 
     public void giveRating(String username, String applicationName, int rating) {
+        auditService.writeData("User - giveRating");
         if (!applicationService.existsApplication(applicationName)) {
             System.out.println("Aplicatia " + applicationName + " nu exista");
             return;
@@ -96,7 +106,13 @@ public class UserService {
         }
     }
 
+    public List<User> getUsers(){
+        auditService.writeData("User - getUsers");
+        return userRepository.getUsers();
+    }
+
     public void showUsers(){
+        auditService.writeData("User - showUsers");
         for (User user : userRepository.getUsers())
             System.out.println(user.toString());
     }

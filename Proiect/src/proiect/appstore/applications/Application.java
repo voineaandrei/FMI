@@ -4,23 +4,25 @@ public class Application {
     protected String publisherName, applicationName;
     protected float price;
     protected Details details;
-
+    protected String type;
     // CONSTRUCTORS
 
     public Application(){
         this("", "", 0);
+        this.type = "";
     }
 
     public Application(String publisherName, String applicationName, float price) {
         this.publisherName = publisherName;
         this.applicationName = applicationName;
         this.price = price;
+        this.type = "";
         this.details = new Details();
     }
 
     @Override
     public String toString() {
-        return applicationName + "; ";
+        return applicationName + ";";
     }
 
     // SETTERS AND GETTERS
@@ -57,4 +59,11 @@ public class Application {
         this.details = details;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }
