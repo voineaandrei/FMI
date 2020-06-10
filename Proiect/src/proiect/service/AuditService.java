@@ -40,4 +40,23 @@ public class AuditService {
         }
 
     }
+
+    public void writeData(String functionName, String threadName){
+
+        try  {
+            output.write(functionName);
+            output.write(",");
+            output.write(threadName);
+            output.write(",");
+            Date date= new Date();
+            long time = date.getTime();
+            output.write(Long.toString(time));
+            output.newLine();
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

@@ -109,4 +109,8 @@ public class User {
     public void setCard(Card card) {
         this.card = card;
     }
+
+    public int getIdCurrent() {
+        return idCurrent;
+    }
 }
