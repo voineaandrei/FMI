@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ro"><head>
+	<title>Meniu</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="Meniul pizzeriei Haștemele vă pune la dispoziție pizza, burgers, salate și alte bunătăți.">
+	<meta name="keywords" content="pizzeria, Haștemele, pizza, burgers, salate, meniu">
+	<meta name="author" content="Pizzeria Haștemele">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="./favicon/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="./css/all_css.css">
+	<link rel="stylesheet" type="text/css" href="./css/nav_bar.css">
+	<link rel="stylesheet" type="text/css" href="./css/css_joc.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src ="./css/nav.js"></script>
+</head>	
+<body>
+	<header>
+		<%- include("../fragmente/header") %>
+	</header>
+
+	<% if(locals.user){ %>
+		<p>Salut, <%= locals.user.username %></p>
+		<%locals.rsstatus = "ok";%>
+	<% } %> 
+	
+	<% if(!locals.rsstatus) { %>
+		<p> LOGIN!! </p>
+		 <form id="login" method="post" >
+			<p>
+			<label>
+				Username: <input type="text" name="username" value="">
+			</label>
+			</p>
+			<p>
+			<label>
+				Parola: <input type="password" name="parola" value="">
+			</label>
+			</p>
+			<input type="submit" value="Submit">
+		</form>
+		<% } else if(rsstatus=="ok"){ %>
+			<script src ="./js/constante.js"></script>
+			<script src ="./js/joc.js"></script>
+		<% } else {%>
+			<p>Eroare</p>
+		<% } %>
+</body>
+</html>

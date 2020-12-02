@@ -1,0 +1,59 @@
+.bkimg {
+	background-image: url("./Images/background_image.jpg");
+	filter: blur(5px);
+	height: 100%;
+	background-size: 100% 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.container {
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0, 0.4);
+  color: white;
+  font-weight: bold;
+  border: 3px solid #f1f1f1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 80%;
+  padding: 20px;
+  text-align: center;
+}
+
+time {
+	font-size: 25px;
+}
+
+footer {
+	background-color: rgb(0,0,0);
+	text-align: center;
+	color: white;
+}
+
+footer a { 
+	color: white;
+	text-decoration-color:white;
+}
+
+.copyright	{
+	background-color: rgb(0,0,0);
+	text-align: center;
+	color: #ffc30f;
+}
+
+h2 { font-size: 40px;
+color: #c70039;
+}
+
+h3 { 
+	font-size: 25px;
+	color: #ffc30f;
+}
+
+.capriciosaimg {
+	width: 40%;
+	height: auto;
+}

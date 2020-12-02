@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ro"><head>
+	<title>Meniu</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="Meniul pizzeriei Haștemele vă pune la dispoziție pizza, burgers, salate și alte bunătăți.">
+	<meta name="keywords" content="pizzeria, Haștemele, pizza, burgers, salate, meniu">
+	<meta name="author" content="Pizzeria Haștemele">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="./favicon/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="./css/all_css.css">
+	<link rel="stylesheet" type="text/css" href="./css/css_meniu.css">
+	<link rel="stylesheet" type="text/css" href="./css/nav_bar.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src ="./css/nav.js"></script>
+</head>	
+<body>
+	
+	<header>
+		<%- include("../fragmente/header") %>
+	</header>
+	<% if(locals.user){ %>
+		<p>Salut, <%= locals.user.username %></p>
+	<% } %> 
+	<div class = "bi">
+		<article>
+		<h4> Știați că...? </h4>
+		<blockquote cite = "https://blog.out4food.ro/5-lucruri-pe-care-probabil-nu-le-stiati-despre-pizza/">Pizza a fost preparată pentru prima dată în… Grecia, și nu în Italia. Vechii greci obișnuiau să coacă un fel de lipii mari și rotunde, pe care turnau ulei de măsline, după care presărau condimente, cartofi și alte legume.</blockquote>
+		</article>
+	</div>
+	<hr>
+	<section id = "pizza">
+		<h2> Pizza </h2>
+		
+		<h3 id = "capriciosa"><b>Pizza Capriciosa</b></h3>
+		<p style = "color:red"> Acum doar la <del>29,99</del> 19,99 lei!!</p>
+		<p>Ingrediente:</p>
+			<ul>
+				<li> sos, </li>
+				<li> mozzarella, </li>
+				<li> salam picant, </li>
+				<li> ardei iute; </li>
+			</ul>
+		<p> Gramaj: 450 gr. <small>(32 cm)</small> </p>
+		
+		<h3><b>Pizza Diavola</b></h3>
+		<figure>
+		<img src ="./css/Images/ardei.jpg" alt = "ardei iute" class="ardei">
+		<figcaption> <strong style = "color:red"> PICANTĂ </strong> </figcaption>
+		</figure>
+		<p>Ingrediente:</p>
+			<ul>
+				<li>sos, </li>
+				<li>mozzarella, </li>
+				<li>șuncă, </li>
+				<li>bacon, </li>
+				<li>ciuperci, </li>
+				<li>măsline;</li>
+			</ul>
+		<p> Gramaj: 520gr. <small>(32 cm)</small> </p>
+	</section>
+	<hr>
+	<section id = "burgers">
+		<h2> Burgers </h2>
+		
+		<h3><b>Burger de vită</b></h3>
+		<p>Ingrediente:</p>
+			<ul>
+				<li>carne de vită, </li>
+				<li>sos, </li>
+				<li>brânză Cheddar, </li>
+				<li>salsa roșii, </li>
+				<li>nachos, </li>
+				<li>chiflă pufoasă;</li>
+			</ul>
+		<p> Gramaj: 240g </p>
+		
+		<h3><b>Cheeseburger</b></h3>
+		<p>Ingrediente:</p>
+			<ul>
+				<li>carne de vită, </li>
+				<li>sos Chili Mayo, </li>
+				<li>brânză Cheddar, </li>
+				<li>salsa Iceberg, </li>
+				<li>roșii felii, </li>
+				<li>ceapă roșie, </li>
+				<li>chiflă pufoasă;</li>
+			</ul>
+		<p> Gramaj: 250g </p>
+	</section>
+	<hr>
+	<section id = "salate">
+		<h2> Salate </h2>
+		
+		<h3><b>Salată grecească</b></h3>
+		<figure>
+		<img src ="./css/Images/ardei.jpg" alt = "ardei iute" class="ardei">
+		<figcaption> <strong style = "color:red"> PICANTĂ </strong> </figcaption>
+		</figure><p>Ingrediente:</p>
+			<ul>
+				<li>roșii marinate, </li>
+				<li>castraveți, </li>
+				<li>măsline verzi, </li>
+				<li>ceapă roșie, </li>
+				<li>ardei gras roșu, </li>
+				<li>brânză Feta, </li>
+				<li>oregano, </li>
+				<li>busuioc proaspăt, </li>
+				<li>sos;</li>
+			</ul>
+		<p> Gramaj: 350g </p>
+		
+		<h3><b>Salată Caesar</b></h3>
+		<p>Ingrediente:</p>
+			<ul>
+				<li>salată Iceberg, </li>
+				<li>piept de pui la grătar, </li>
+				<li>roșii marinate, </li>
+				<li>felii de bacon, </li>
+				<li>sos Caesar, </li>
+				<li>parmezan;</li>
+			</ul>
+		<p style = "margin-bottom:1em"> Gramaj: 320g </p>
+	</section>
+</body>
+</html>

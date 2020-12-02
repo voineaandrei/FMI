@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ro"><head>
+	<title>Pizzeria Haștemele</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="Pizza pentru oricine la preturi resonabile. Livram la domiciliu.">
+	<meta name="keywords" content="pizzeria, Haștemele, tarife, meniu, contact, recomandarea zilei">
+	<meta name="author" content="Pizzeria Haștemele">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="./favicon/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="./css/all_css.css">
+	<link rel="stylesheet" type="text/css" href="./css/css_index.css">
+	<link rel="stylesheet" type="text/css" href="./css/nav_bar.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src ="./css/nav.js"></script>
+
+</head>	
+<body>
+	<header>
+		<%- include("../fragmente/header") %>
+	</header>
+	<% if(locals.user){ %>
+		<p>Salut, <%= locals.user.username %></p>
+	<% } %> 
+	<div class="bkimg"></div>
+	<main class="container">
+		<h2> Pizza Haștemele </h2>
+		<p> Bine ați venit la pizzeria noastră, unde vă servim cu orice fel de pizza, burgeri, salate și multe altele ce vor urma.</p>
+		<h3> Recomandarea <time datetime ="2019-11-17">zilei</time></h3>
+		<a href="meniu.html#capriciosa"> <img src = "./css/Images/capriciosa.jpg" alt = "Capriciosa" class = "capriciosaimg"> </a>
+	</main>
+	<footer>
+		<%- include("../fragmente/footer") %>
+	</footer>
+</body></html>

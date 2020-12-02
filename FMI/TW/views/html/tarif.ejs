@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ro"><head>
+	<title>Tarife</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="Pizza pentru oricine la preturi resonabile. Oferte de luni până vineri. Livram la domiciliu.">
+	<meta name="keywords" content="pizzeria, Haștemele, tarife, oferte, noutăți, prețuri">
+	<meta name="author" content="Pizzeria Haștemele">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="./favicon/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="./css/all_css.css">
+	<link rel="stylesheet" type="text/css" href="./css/css_tarif.css">
+	<link rel="stylesheet" type="text/css" href="./css/nav_bar.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src ="./css/nav.js"></script>
+</head>	
+<body>
+	<header>
+		<%- include("../fragmente/header") %>
+	</header>
+	<% if(locals.user){ %>
+		<p>Salut, <%= locals.user.username %></p>
+	<% } %> 
+	<p>La noi găsești cele mai bune oferte, prețuri și noutăți, astfel încât începând de pe <time datetime="2020-01-01">01.01.2020</time>, avem:</p>
+	
+<table>
+	<caption>Ofertele noastre <small>(valabile in fiecare săptămână)</small></caption>
+		<thead>
+			<tr>
+				<th scope="col"> Ziua </th>
+				<th scope="col"> Oferta </th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td> Luni </td>
+				<td> 2+1 gratis la orice pizza </td>
+			</tr>
+			<tr>
+				<td> Marti </td>
+				<td> 2+1 gratis la orice burger </td>
+			</tr>
+			<tr>
+				<td> Miercuri </td>
+				<td> 2+1 gratis la orice salată </td>
+			</tr>
+			<tr>
+				<td> Joi </td>
+				<td rowspan = "2"> 2+2 gratis la orice </td>
+			</tr>
+			<tr>
+				<td> Vineri </td>
+				<td class = "table_responsive"> 2+2 gratis la orice </td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
