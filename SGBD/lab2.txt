@@ -1,0 +1,415 @@
+---- LAB 2
+-- 1
+
+set serveroutput on
+
+declare
+    type emp_rec is record
+        (v_cod emp_voinea.employee_id%type,
+        v_last_name emp_voinea.last_name%type,
+        v_sal emp_voinea.salary%type,
+        v_dep emp_voinea.department_id%type);
+    v_emp_rec emp_rec;
+begin
+    delete from emp_voinea
+    where employee_id = 199
+    returning employee_id, last_name, salary, department_id into v_emp_rec;
+    
+    dbms_output.put_line(v_emp_rec.v_cod);
+    dbms_output.put_line(v_emp_rec.v_last_name);
+    dbms_output.put_line(v_emp_rec.v_sal);
+    dbms_output.put_line(v_emp_rec.v_dep);
+end;
+/
+rollback;
+
+-- 2
+
+declare
+    type emp_rec is record
+        (v_cod emp_voinea.employee_id%type := 207,
+        v_first_name emp_voinea.first_name%type := 'Andrei',
+        v_last_name emp_voinea.last_name%type := 'Voinea',
+        v_email emp_voinea.email%type := 'hahaha@ceva.com',
+        v_phone emp_voinea.phone_number%type := '074bile2tn',
+        v_hire_date emp_voinea.hire_date%type := sysdate,
+        v_job_id emp_voinea.job_id%type := 'SEC',
+        v_sal emp_voinea.salary%type := 20000,
+        v_com emp_voinea.commission_pct%type := 0,
+        v_manager emp_voinea.manager_id%type := 100,
+        v_dep emp_voinea.department_id%type := 50,
+        v_vechime emp_voinea.vechime%type := '####');
+    v_emp_rec emp_rec;
+begin
+    insert into emp_voinea
+    values v_emp_rec;
+    
+    v_emp_rec.v_phone := '074bile2nmata2ntn';
+    update emp_voinea
+    set row = v_emp_rec
+    where employee_id = v_emp_rec.v_cod;
+end;
+/
+
+-- 4
+
+set serveroutput on
+
+declare
+    type tablou_indexat is table of number 
+        index by binary_integer;
+    v_my_table tablou_indexat;
+    v_my_table_delete tablou_indexat;
+    v_contor number := 1;
+begin
+    while v_contor <= 20 loop
+        v_my_table(v_contor) := v_contor;
+        dbms_output.put_line(v_my_table(v_contor));
+        v_contor := v_contor + 1;
+    end loop;
+    
+    dbms_output.put_line(v_my_table(4));
+    v_my_table := v_my_table_delete;
+    dbms_output.put_line(v_my_table.count);
+end;
+/
+
+-- 5
+
+set serveroutput on
+
+declare
+    type tablou is table of dept%rowtype
+        index by binary_integer;
+    v_tablou tablou;
+begin
+    v_tablou(1).department_id := 300;
+    v_tablou(1).department_name := 'hahaha';
+    v_tablou(1).manager_id := null;
+    v_tablou(1).location_id := 1700;
+    
+    insert into dept values v_tablou(1);
+    v_tablou.delete;
+    dbms_output.put_line(v_tablou.count);
+end;
+/
+
+-- 7
+create type proiect as varray(50) of varchar2(15)
+/
+create table test_voinea (cod_ang number(4),
+                        proiecte_alocate proiect);
+                    
+declare
+    v_my_vector proiect := proiect();
+    v_char varchar(15);
+begin
+    v_my_vector.extend(2);
+    v_my_vector(1) := 'cha1';
+    v_my_vector(2) := 'cha2';
+    insert into test_voinea values (1, v_my_vector);
+end;
+/
+
+-- 8
+declare
+    type vector is varray(100) of number;
+    v_emp vector := vector();
+begin
+    select employee_id bulk collect into v_emp
+    from emp_voinea
+    where department_id = 50 and salary < 5000;
+    
+    forall contor in 1..v_emp.count
+        update emp_voinea
+        set salary = salary * 1.1
+        where employee_id = v_emp(contor);
+end;
+/
+
+set serveroutput on
+
+declare
+    type vector is varray(100) of number;
+    v_emp vector := vector();
+begin
+    for contor in (select * from emp_voinea) loop
+        if contor.department_id = 50 and contor.salary < 5000 then
+            v_emp.extend;
+            v_emp(v_emp.count):=contor.employee_id;
+        end if;
+    end loop;
+    
+    for contor in 1..v_emp.COUNT loop
+        update emp_voinea
+        set salary = salary * 1.1
+        where employee_id = v_emp(contor);
+    end loop;
+    
+    dbms_output.put_line(v_emp.count);
+    v_emp.extend;
+    dbms_output.put_line(v_emp.count);
+    dbms_output.put_line(v_emp.prior(v_emp.last) || ' ' || v_emp(v_emp.last));
+end;
+/
+
+-- 10
+
+set serveroutput on
+
+declare
+    type tablou_num is table of number;
+    type tablou_index is table of number
+        index by binary_integer;
+    NumTab tablou_num := tablou_num(5, 6, 7, 8, 9);
+    i binary_integer := 1;
+    v_tablou_indexat tablou_index;
+begin
+    loop
+        if NumTab.exists(i)then
+            dbms_output.put_line(NumTab(i));
+            v_tablou_indexat(i) := NumTab(i);
+            i := i + 1;
+                else 
+            exit;
+        end if;
+    end loop;
+    for i in reverse v_tablou_indexat.first..v_tablou_indexat.last loop
+        dbms_output.put_line(v_tablou_indexat(i));
+    end loop;
+end;
+/
+
+
+-- 13
+
+create type list_ang as varray(10) of number(4);
+create table job_emp (cod_job number(3), titlu_job varchar2(25), info list_ang);
+/
+declare
+    v_vector_info list_ang := list_ang(700);
+    v_vector_job list_ang := list_ang(1,2,3);
+    v_cod job_emp.cod_job%type := 1;
+    v_info job_emp.info%type;
+    i integer;
+begin
+--    insert into job_emp
+--    values (v_cod, 'csa', v_vector_job);
+--    insert into job_emp
+--    values (5, 'alabala', v_info);
+--    
+    select info
+    into v_info
+    from job_emp
+    where titlu_job = 'csa';
+    
+    dbms_output.put_line('v_info:');
+    i := v_info.first;
+    while i <= v_info.last loop
+        dbms_output.put_line(v_info(i));
+        i := i +1;
+    end loop;
+end;
+/
+
+
+drop type DataTab;
+drop table famous_dates;
+
+create type DataTab as table of Date;
+/
+create table famous_dates (key number primary key, data DataTab)
+                            nested table data store as dates_tab;
+/
+-- 14
+declare
+    v_tabel DataTab := DataTab();
+    i integer;
+begin
+    for i in 1..5 loop
+        v_tabel.extend;
+        v_tabel(v_tabel.count) := sysdate + i;
+        dbms_output.put_line(v_tabel(i));
+    end loop;
+    v_tabel.delete(2);
+    
+    insert into famous_dates values (1, v_tabel);
+end;
+/
+
+-- 15
+
+drop type info_rec;
+/
+create type info_rec is object
+    (cod_angajat number, job_angajat varchar2(255));
+/
+create type info_tablou as table of info_rec;
+/
+alter table dept add info info_tablou
+            nested table info store as infos;
+
+update dept
+set info = info_tablou()
+where department_id = 100;
+
+insert into table (select info from dept where department_id = 100) 
+values (100, 'myemp');
+
+select d.department_id, t.*
+from dept d, table (d.info) t;
+
+-- 16
+
+CREATE GLOBAL TEMPORARY TABLE temp_table_pnu (num_col NUMBER(6),
+                                              char_col VARCHAR2(20))
+                                              ON COMMIT PRESERVE ROWS;
+                                              
+DECLARE
+    TYPE t_Numbers IS TABLE OF temp_table_pnu.num_col%TYPE
+    INDEX BY BINARY_INTEGER;
+    TYPE t_Chars IS TABLE OF temp_table_pnu.char_col%TYPE
+    INDEX BY BINARY_INTEGER;
+   
+    v_Numbers t_Numbers;
+    v_Chars t_Chars;
+BEGIN
+    FOR v_Count IN 1..500 LOOP
+        v_Numbers(v_Count) := v_Count;
+        v_Chars(v_Count) := 'Row number ' || v_Count;
+    END LOOP;
+    FOR v_Count IN 1..500 LOOP
+        INSERT INTO temp_table_pnu VALUES
+        (v_Numbers(v_Count), v_Chars(v_Count));
+    END LOOP;
+END;
+/
+
+-- 17
+
+set serveroutput on
+
+declare
+    v_rowid rowid;
+    v_first_name varchar2(255);
+    v_last_name varchar2(255);
+begin
+    insert into emp_voinea (employee_id, last_name, email, hire_date, job_id, salary)
+    values (300, 'Andree', 'va@yahoo.com', sysdate, 'CYBER', 30000)
+    returning rowid into v_rowid;
+    
+    dbms_output.put_line(v_rowid);
+    update emp_voinea
+    set salary = salary * 30/100 + salary
+    where rowid = v_rowid
+    returning first_name, last_name into v_first_name, v_last_name;
+    
+--    delete from emp_voinea
+--    where rowid = v_rowid;
+    
+    dbms_output.put_line(v_first_name);
+    dbms_output.put_line(v_last_name);
+end;
+/
+
+-- 18
+
+set serveroutput on
+
+declare
+    type T_NUMBERS is table of number
+        index by binary_integer;
+    type T_MULTINUMBERS is table of T_NUMBERS
+        index by binary_integer;
+    type T_MULTIVARRAY is varray(10) of T_NUMBERS;
+    type T_MULTINESTED is table of T_NUMBERS;
+    v_numbers t_numbers;
+    v_multinumbers t_multinumbers;
+    v_multivarray t_multivarray := t_multivarray();
+    v_multinested t_multinested := t_multinested();
+begin
+    v_numbers(1) := 2;
+    v_numbers(2) := 3;
+    
+    v_multinumbers(1) := v_numbers;
+    
+    v_multivarray.extend;
+    v_multivarray(v_multivarray.count) := v_numbers;
+    
+    v_multinested.extend;
+    v_multinested(v_multinested.count) := v_numbers;
+
+--------------------
+
+    dbms_output.put_line('v_numbers:');
+    for i in v_numbers.first..v_numbers.last loop
+        dbms_output.put_line(v_numbers(i));
+    end loop;
+    
+    dbms_output.put_line('v_multinumbers:');
+    for i in v_multinumbers.first..v_multinumbers.last loop
+        dbms_output.put_line(v_multinumbers(i)(1));
+    end loop;
+    
+    dbms_output.put_line('v_multivarray:');
+    for i in v_multivarray.first..v_multivarray.last loop
+        for j in 1..v_multivarray(i).count loop
+            dbms_output.put_line(v_multivarray(i)(j));
+        end loop;
+    end loop;
+    
+--    dbms_output.put_line('v_multinested:');
+--    for i in v_multivarray.first..v_multivarray.last loop
+--        dbms_output.put_line(v_multinested(i)(1));
+--    end loop;
+end;
+/
+
+-- 19
+
+declare
+    type emp_tab is table of emp_voinea%rowtype;
+    v_emp_tab emp_tab := emp_tab();
+begin
+    v_emp_tab.extend;
+    select * into v_emp_tab(1)
+    from emp_voinea
+    where employee_id = 105;
+    
+    v_emp_tab(1).employee_id := 350;
+    
+    insert into emp_voinea values v_emp_tab(1);
+    dbms_output.put_line(sql%rowcount);
+end;
+/
+
+-- 20
+
+set serveroutput on
+
+declare
+    type emp_tab is table of emp_voinea%rowtype;
+    type emp_indexed is table of emp_tab
+        index by binary_integer;
+    v_emp emp_indexed;
+begin
+    v_emp(1) := emp_tab();
+    v_emp(1).extend;
+    select * into v_emp(1)(1)
+    from emp_voinea
+    where employee_id = 200;
+    
+    dbms_output.put_line(v_emp(1)(1).employee_id || ' ' || v_emp(1)(1).first_name || ' ' || v_emp(1)(1).job_id);
+    
+    v_emp(1).extend;
+    select * into v_emp(1)(2)
+    from emp_voinea
+    where employee_id = 150;
+    
+    v_emp(1)(2).last_name := 'seniorita';
+    v_emp(1)(2).first_name := 'yessir';
+    v_emp(1)(2).employee_id := 400;
+    
+    insert into emp_voinea values v_emp(1)(2);
+end;
+/

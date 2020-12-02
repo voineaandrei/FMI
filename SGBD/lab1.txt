@@ -1,0 +1,328 @@
+----- LAB 1
+-- 1
+
+set serveroutput on
+
+begin
+    dbms_output.put_line('Invat PL/SQL');
+end;
+/
+
+-- 2
+
+declare
+    v_oras locations.city%TYPE;
+begin
+    select city into v_oras
+    from locations join departments using (location_id)
+    where department_id = 30;
+    
+    dbms_output.put_line (v_oras);
+end;
+/
+
+-- 3
+
+set verify off;
+
+declare
+    v_media_sal employees.salary%type;
+    v_dept number := &nr;
+begin
+    select avg(salary) into v_media_sal
+    from employees
+    where department_id = v_dept;
+    
+    dbms_output.put_line(v_media_sal);
+end;
+/
+
+set verify on;
+
+-- 4
+
+set serveroutput on;
+set verify off;
+
+declare
+    v_dept number := &nr;
+    v_nr_ang number;
+begin
+    select count(*) into v_nr_ang
+    from employees
+    where department_id = v_dept;
+    
+    case
+        when v_nr_ang > 30 then dbms_output.put_line('mare');
+        when v_nr_ang >=10 and v_nr_ang <= 10 then dbms_output.put_line('mediu');
+        else dbms_output.put_line('mic');
+    end case;
+end;
+/
+
+-- 5
+
+create table emp_voinea as select * from employees;
+
+define p_cod_dep = 50;
+define p_com = 20;
+declare
+    v_cod_dep employees.department_id%TYPE := &p_cod_dep;
+    v_com number := &p_com;
+begin
+    update emp_voinea
+    set commission_pct = (v_com/100)
+    where commission_pct is null and department_id = v_cod_dep;
+    
+    if sql%rowcount = 0 then
+        dbms_output.put_line('Nu s a modificat nicio linie');
+    else dbms_output.put_line ('s au modificat ' || sql%rowcount);
+    end if;
+end;
+/
+
+-- 6
+
+declare
+    v_nr number := &nr;
+    v_zi number(1);
+begin
+    v_zi := mod (v_nr, 7);
+    case v_zi
+        when 0 then dbms_output.put_line('Luni');
+        when 1 then dbms_output.put_line('Marti');
+        when 2 then dbms_output.put_line('Miercuri');
+        when 3 then dbms_output.put_line('Joi');
+        when 4 then dbms_output.put_line('Vineri');
+        when 5 then dbms_output.put_line('Sambata');
+        else dbms_output.put_line('Duminica');
+    end case;
+end;
+/
+
+-- 7
+
+alter table emp_voinea add vechime varchar2(200);
+
+set serveroutput on
+
+declare
+    v_employee_id employees.employee_id%type := &p_employee_id;
+    v_ani number(4);
+    v_stelute varchar(255) := '';
+begin
+
+    select 2020 - to_char(hire_date, 'yyyy')
+    into v_ani
+    from employees
+    where employee_id = v_employee_id;
+    
+    dbms_output.put_line(v_ani);
+    
+    for i in 1..v_ani loop
+        v_stelute := v_stelute || '#';
+    end loop;
+    
+    dbms_output.put_line(v_stelute);
+    
+    update emp_voinea
+    set vechime = v_stelute
+    where employee_id = v_employee_id;
+end;
+/
+
+-- 8
+
+set serveroutput on
+
+declare
+    v_n number := &n;
+    v_produs number := 1;
+begin
+    loop
+        v_produs := v_produs * v_n;
+        v_n := v_n - 1;
+    exit when v_n = 1;
+    end loop;
+    dbms_output.put_line(v_produs);
+end;
+/
+
+-- ex
+-- 1
+-- A) 2
+-- B) Europa de est
+-- C) 301
+-- D) Produs 1 se afla in stoc
+-- E) eroare?
+
+-- 2
+
+set serveroutput on
+
+define p_x = 5;
+define p_y = 1;
+declare
+    v_x number := &p_x;
+    v_y number := &p_y;
+    v_rez number;
+begin
+    if v_y = 0 then
+        v_rez := v_x * v_x;
+    else
+        v_rez := v_x/v_y + v_y;
+    end if;
+    dbms_output.put_line(v_rez);
+end;
+/
+
+-- 3
+
+declare
+    v_cod employees.job_id%type := '&cod';
+    v_sum_sal number := 0;
+begin
+    select sum(salary) into v_sum_sal
+    from employees
+    where job_id = v_cod;
+    
+    dbms_output.put_line(v_sum_sal);
+end;
+/
+
+-- 4
+
+set serveroutput on
+
+declare
+    v_cod employees.employee_id%type := &cod;
+    v_salary employees.salary%type;
+    v_com employees.commission_pct%type;
+begin
+    select salary into v_salary
+    from employees
+    where employee_id = v_cod;
+    
+    case
+        when v_salary < 1000 then v_com := 10/100;
+        when v_salary >= 1000 and v_salary <= 1500 then v_com := 15/100;
+        when v_salary > 1500 then v_com := 20/100;
+        else v_com := 0;
+    end case;
+    
+    dbms_output.put_line(v_salary || ' ' || v_com);
+    
+    update emp_voinea
+    set commission_pct = v_com
+    where employee_id = v_cod;
+end;
+/
+
+-- 5
+
+drop table org_tab;
+create table org_tab (cod_tab integer, text_tab varchar2(255));
+
+declare
+    v_contor number := 0;
+    v_text varchar2(255) := '';
+begin
+    loop
+        v_contor := v_contor + 1;
+        v_text := 'Instructiunea ' || v_contor;
+        insert into org_tab values(v_contor, v_text);
+        exit when v_contor = 35;
+    end loop;
+    
+    while v_contor < 70 loop
+        v_contor := v_contor + 1;
+        v_text := 'Instructiunea ' || v_contor;
+        insert into org_tab values(v_contor, v_text);
+    end loop;
+end;
+/
+
+-- 6
+
+declare
+    v_cod org_tab.cod_tab%type := &cod;
+    v_text org_tab.text_tab%type;
+begin
+    select text_tab into v_text
+    from org_tab
+    where cod_tab = v_cod;
+    
+    if mod(v_cod, 2) = 0 then
+        v_text := v_text || ' si are codul par.';
+        else
+        v_text := v_text || ' si are codul impar.';
+    end if;
+    
+    update org_tab
+    set text_tab = v_text
+    where cod_tab = v_cod;
+end;
+/
+
+-- 7
+
+variable cod_maxim number;
+begin
+    select max(department_id) into :cod_maxim
+    from dept;
+end;
+/
+print cod_maxim;
+
+-- 8
+
+create table DEPT as select * from departments;
+
+define p_dept_name = 'Cybersecurity';
+declare
+    v_dept_name departments.department_name%type := '&p_dept_name';
+    c_dept_id constant departments.department_id%type := (:cod_maxim + 10);
+    v_location varchar(255) := null;
+begin
+    insert into dept values (c_dept_id, v_dept_name, null, null);
+end;
+/
+
+select * from dept;
+
+-- 9
+set serveroutput on
+
+define p_dept_id = 50;
+define p_location = 1400;
+
+declare
+    v_dept_id dept.department_id%type := &p_dept_id;
+    v_dept_location dept.location_id%type := &p_location;
+    v_name dept.department_name%type;
+begin
+    update dept
+    set location_id = v_dept_location
+    where department_id = v_dept_id;
+    
+    select department_name into v_name
+    from dept
+    where department_id = v_dept_id;
+    
+    dbms_output.put_line(v_dept_id || ' ' || v_name || ' ' || v_dept_location);
+end;
+/
+
+-- 10
+
+define p_cod = 300;
+
+declare
+    v_cod dept.department_id%type := &p_cod;
+begin
+    delete from dept
+    where department_id = v_cod;
+    
+    dbms_output.put_line(sql%rowcount);
+end;
+/

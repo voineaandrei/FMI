@@ -1,0 +1,201 @@
+-- 3 --
+
+select last_name, department_id
+from employees
+where department_id in (10, 30)
+order by last_name;
+
+-- 4 -- 
+
+select to_char(sysdate, 'month')
+from dual;
+
+-- 5 --
+
+select last_name, hire_date
+from employees
+where hire_date LIKE ('%87');
+
+select last_name, hire_date
+from employees
+where to_char(hire_date, 'yyyy') = 1987;
+
+-- 6 --
+
+select last_name, employee_id
+from employees
+where manager_id is null;
+
+-- 7 --
+
+select last_name, salary, commission_pct
+from employees
+where commission_pct is not null
+order by salary desc, commission_pct desc;
+
+-- 8 --
+
+select last_name, salary, commission_pct
+from employees
+order by salary desc, commission_pct desc;
+
+-- 9 --
+
+select last_name
+from employees
+--where lower(last_name) like ('__a%');
+where substr(lower(last_name), 3, 1) = 'a';
+
+-- 10 --
+
+select last_name, first_name
+from employees
+where lower(first_name) like ('%l%l%') and (department_id = 30 or manager_id = 102);
+
+-- 11 --
+
+select last_name, job_id, salary
+from employees
+where (job_id like ('%CLERK%') or job_id like ('%REP%')) and salary not in (1000, 2000, 3000)
+order by salary desc;
+
+-- 12 --
+
+select last_name, department_name
+from employees left join departments using (department_id);
+
+-- 13 --
+
+select last_name, department_name
+from employees right join departments using (department_id);
+
+-- 14 --
+
+select ang.last_name, ang.employee_id, ang.manager_id, s.last_name, s.employee_id
+from employees ang join employees s on (ang.manager_id = s.employee_id);
+
+-- 15 --
+
+select ang.last_name, ang.employee_id, ang.manager_id, s.last_name, s.employee_id
+from employees ang left join employees s on (ang.manager_id = s.employee_id);
+
+-- 16 --
+
+select department_id, department_name
+from departments left join employees using (department_id)
+MINUS 
+select department_id, department_name
+from departments join employees using (department_id);
+
+-- 17 --
+
+select min(salary) Maxim, max(salary) Minim, sum(salary) Suma, round(avg(salary),2) Media
+from employees;
+
+-- 18 --
+
+select min(salary) Maxim, max(salary) Minim, sum(salary) Suma, round(avg(salary),2) Media, job_id
+from employees
+group by job_id;
+
+-- 19 --
+
+select count(*), job_id
+from employees
+group by job_id;
+
+-- 20 --
+
+select department_name, city, count(employee_id) Salariati, nvl(round(avg(salary),2),0) "Salariu avg"
+from employees right join departments using (department_id) 
+join locations using (location_id)
+group by department_id, department_name, city;
+
+-- 21 --
+
+select employee_id, last_name, salary
+from employees
+where salary > (select avg(salary)
+                from employees)
+order by salary desc;
+
+-- 22 --
+
+select min(avg(salary)) "Salariul minim"
+from employees
+group by job_id;
+
+-- 23 --
+
+select avg(salary), job_id
+from employees
+group by job_id
+having avg(salary) = (select min(avg(salary)) "Salariul minim"
+                      from employees
+                      group by job_id);
+
+-- 24 --
+
+select department_id, department_name, count(employee_id) "ANG"
+from departments left join employees using (department_id)
+group by department_id, department_name
+having count(employee_id) < 4
+order by 3 desc;
+
+select department_id, department_name, count(employee_id) "ANG"
+from departments join employees using (department_id)
+group by department_id, department_name
+having count(employee_id) = (select max(count(*))
+                            from employees
+                            group by department_id);
+
+-- 25 --
+
+select department_id, count(employee_id)
+from employees
+group by department_id
+having count(employee_id) >= 15;
+
+-- 26 --
+
+select last_name, hire_date
+from employees
+where to_char(hire_date, 'dd') = (select to_char(hire_date, 'dd')
+                                    from employees
+                                    group by to_char(hire_date, 'dd')
+                                    having count(*) = (select max(count(*))
+                                                        from employees
+                                                        group by to_char(hire_date, 'dd')));
+
+-- 27 --
+
+select last_name, salary, job_id
+from employees e
+where salary = (select min(salary)
+                from employees
+                where e.job_id = job_id)
+order by job_id;
+
+-- 28 --
+
+select last_name, salary
+from (select last_name, salary
+        from employees
+        order by salary desc)
+where rownum <= 10;
+
+-- 29 --
+
+select department_id, department_name, sum(salary)
+from employees join departments using (department_id)
+group by department_id, department_name;
+
+-- 30 --
+
+select last_name, salary, department_id
+from employees e
+where salary > (select avg(salary)
+                from employees
+                where e.department_id = department_id
+                group by department_id)
+order by department_id;

@@ -1,0 +1,637 @@
+-- Lab 4
+set serveroutput on
+
+-- 1 
+declare
+    procedure add_dep_it 
+        (dept_id dept.department_id%type,
+        dept_name dept.department_name%type,
+        man_id dept.manager_id%type,
+        loc_id dept.location_id%type,
+        inf dept.info%type)
+        is
+    begin
+        insert into dept values (dept_id, dept_name, man_id, loc_id, inf);
+    end add_dep_it;
+begin
+    add_dep_it(500, 'schumar', 100, 1400, null);
+    add_dep_it(600, 'schumar2', 100, 1400, null);
+
+end;
+/
+
+select *
+from dept;
+
+rollback;
+
+
+-- 2
+
+set serveroutput on
+
+declare
+    v_rez employees.last_name%type := 'aminoaicd';
+    procedure procedura (p_rezultat IN OUT employees.last_name%type,
+                        p_comision IN employees.commission_pct%type:=null,
+                        p_cod IN employees.employee_id%type:=null)
+        is
+        begin
+            if p_comision is not null then
+                select last_name into p_rezultat
+                from employees
+                where commission_pct = p_comision
+                and salary = (select max(salary) from employees where commission_pct = p_comision);
+                dbms_output.put_line('numele salariatului ' || p_rezultat);
+            else
+                select last_name into p_rezultat
+                from employees
+                where employee_id = p_cod;
+                dbms_output.put_line('numele salariatului ' || p_rezultat);
+            end if;
+        end;
+begin
+    procedura(v_rez,p_cod => 100);
+    dbms_output.put_line(v_rez);
+end;
+/
+
+-- 3
+
+create or replace procedure proc is
+    begin
+        dbms_output.put_line('Programare PL/SQL');
+        dbms_output.put_line(to_char(sysdate, 'dd-month-yyyy hh:mm'));
+        dbms_output.put_line(to_char(sysdate-1, 'dd-mon-yyyy'));
+    end;
+/
+
+execute proc;
+
+
+-- 4
+
+drop procedure proc;
+/
+create procedure proc (p_nume IN varchar2)
+    is
+    begin
+        dbms_output.put_line(p_nume || ' invata PL/SQL.');
+    end;
+/
+execute proc(USER);
+
+
+-- 5
+
+create table jobs2 as select * from jobs;
+ALTER TABLE jobs2 ADD CONSTRAINT pk_jobs_pnu PRIMARY KEY(job_id);
+
+create or replace procedure add_job (p_id IN jobs2.job_id%type, p_title IN jobs2.job_title%type)
+    is
+    begin
+        insert into jobs2 (job_id, job_title) values (p_id, p_title);
+    end;
+/
+
+execute add_job('IT_InfoSec', 'Cybersecurity');
+
+-- 6
+
+create or replace procedure UDP_JOB (p_id IN jobs2.job_id%type, p_title IN jobs2.job_title%type)
+    is
+    begin
+        update jobs2
+        set job_title = p_title
+        where lower(job_id) = lower(p_id);
+        if sql%notfound then
+            raise_application_error(-20202, 'nu s a modificat nimic');
+        end if;
+    end;
+    /
+    
+Execute UDP_JOB ('it_infosec', 'salalallal');
+
+EXECUTE UDP_JOB('IT_DBA', 'Data Administrator'); 
+EXECUTE UDP_JOB('IT_WEB', 'Web mastesdafsssssssssssssssssssssssssssssssssssssssssssssssr'); 
+
+-- 7
+
+create or replace procedure del_job (p_id in jobs2.job_id%type)
+    is
+    begin
+        delete from jobs2 where lower(job_id) = lower(p_id);
+        if sql%notfound then
+            raise_application_error(-20202, 'Nu s-a sters nimic.');
+        end if;
+    end;
+    /
+    
+execute del_job('it_dba');
+execute del_job('it_infosec');
+
+-- 8
+
+create or replace procedure avg_sal (p_sal OUT employees.salary%type)
+    is
+    begin
+        select avg(salary) into p_sal
+        from employees;
+    end;
+    /
+
+variable g_medie number;
+execute avg_sal(:g_medie);
+print g_medie;
+
+-- 9
+
+create or replace procedure upd_sal (p_sal IN OUT employees.salary%type)
+    is
+    begin
+        case
+            when p_sal < 3000 then p_sal := 1.2 * p_sal;
+            when p_sal between 3000 and 7000 then p_sal := 1.15 * p_sal;
+            when p_sal > 7000 then p_sal := 1.1 * p_sal;
+            when p_sal is null then p_sal := 1000;
+        end case;
+    end;
+    /
+
+variable g_sal number;
+
+accept sal prompt 'introdu o suma.';
+begin
+    :g_sal := &sal;
+    upd_sal(:g_sal);
+    dbms_output.put_line(:g_sal);
+end;
+/
+print g_sal;
+
+-- 10
+
+create or replace procedure get_emp (p_sal out employees.salary%type, p_job_id out employees.job_id%type, p_id in employees.employee_id%type)
+    is
+    begin
+        select salary, job_id into p_sal, p_job_id
+        from employees
+        where employee_id = p_id;
+        if sql%notfound then
+            dbms_output.put_line('nono');
+        end if;
+    end;
+    /
+
+variable g_salary number;
+variable g_job_id varchar2(255);
+
+execute get_emp(:g_salary, :g_job_id, 100);
+
+print g_salary;
+print g_job_id;
+
+execute get_emp(:g_salary, :g_job_id, 610);
+
+
+-- 11
+
+create or replace procedure calc (dept_id in employees.department_id%type)
+    is
+        function nrSal (dept_id in employees.department_id%type)
+            return number is
+                v_numar number;
+            begin
+                select count(*) into v_numar
+                from employees
+                where department_id = dept_id;
+                return v_numar;
+            end;
+        
+        function sumSal (dept_id in employees.department_id%type)
+            return number is
+                v_numar number;
+            begin
+                select sum(salary) into v_numar
+                from employees
+                where department_id = dept_id;
+                return v_numar;
+            end;
+            
+        function nrMan (dept_id in employees.department_id%type)
+            return number is
+                v_numar number;
+            begin
+                select count(distinct manager_id) into v_numar
+                from employees
+                where department_id = dept_id;
+                return v_numar;
+            end;
+        
+    begin
+        dbms_output.put_line(nrSal(dept_id));
+        dbms_output.put_line(sumSal(dept_id));
+        dbms_output.put_line(nrMan(dept_id));
+    end;
+    /
+    
+execute calc(50);
+
+-- 12
+
+declare
+    function getSal (dept_id employees.department_id%type)
+        return number is
+            v_ret number;
+        begin
+            select avg(salary) into v_ret
+            from employees
+            where department_id = dept_id;
+            return v_ret;
+        end;
+    function getSal (dept_id employees.department_id%type, j_id employees.job_id%type)
+        return number is
+            v_ret number := 0;
+        begin
+            
+            select avg(salary) into v_ret
+            from employees
+            where department_id = dept_id and job_id = j_id;
+            return v_ret;
+        end;
+begin
+    dbms_output.put_line(getSal(50));
+    dbms_output.put_line(getSal(50, 'ST_CLERK'));
+end;
+/
+
+-- 13
+
+create or replace function get_job (j_id employees.job_id%type)
+    return varchar2 is
+        rezultat varchar2(255);
+    begin
+        select job_title into rezultat
+        from jobs
+        where job_id = j_id;
+        return rezultat;
+    end;
+    /
+    
+variable g_titlu varchar2;
+execute :g_titlu:=get_job('ST_CLERK');
+print g_titlu;
+
+-- 14
+
+create or replace function nrSal (dept_id employees.department_id%type)
+    return number is
+        v_rezultat number;
+    begin
+        select count(employee_id) into v_rezultat
+        from employees
+        where department_id = dept_id and to_char(hire_date, 'yyyy') > 1995;
+        return v_rezultat;
+    end;
+    /
+    
+variable g_nr_sal number;
+execute :g_nr_sal := nrSal(50);
+print g_nr_sal;
+
+
+variable g_rez_2 number;
+call nrSal(50) into :g_rez_2;
+print g_rez_2;
+
+select nrSal(50)
+from dual;
+
+set serveroutput on
+
+begin
+    dbms_output.put_line(nrSal(50));
+end;
+/
+
+-- 15
+
+create or replace function get_anual (p_sal employees.salary%type, p_com employees.commission_pct%type)
+    return number is
+        v_rez number := 0;
+    begin
+        v_rez := 12 * p_sal * (1 + nvl(p_com,0));
+        return v_rez;
+    end;
+/
+    
+select employee_id, last_name, get_anual(salary, commission_pct)
+from employees
+where department_id = 50;
+
+variable g_sal number;
+execute :g_sal := get_anual(10000, null);
+print g_sal;
+
+variable g_sal2 number
+call get_anual(10000, null) into :g_sal2
+print g_sal2;/
+
+-- 16
+
+create or replace function valid_deptid (dept_id dept.department_id%type)
+    return boolean is
+        v_rez boolean;
+        v_nr number;
+    begin
+        select count(*) into v_nr
+        from dept
+        where department_id = dept_id;
+        if v_nr > 0 then
+            v_rez := True;
+        else
+            v_rez := False;
+        end if;
+        return v_rez;
+    end;
+    /
+    
+create or replace procedure add_emp
+                            (fname varchar2,
+                            lname varchar2,
+                            ema varchar2,
+                            jid varchar2 default 'SA_REP',
+                            mid number default 145,
+                            sal number default 1000,
+                            compct employees.commission_pct%type default 0,
+                            depid number default 30)
+    is
+    begin
+        if valid_deptid(depid) then
+            insert into employees (employee_id, first_name, last_name, email, hire_date, job_id, salary, commission_pct, manager_id, department_id)
+            values (employees_seq.nextval, fname, lname, ema, trunc(sysdate), jid, sal, compct, mid, depid);
+        else
+            raise_application_error(-20204, 'Departament invalid.');
+        end if;
+    end;
+    /
+
+execute add_emp('Andrei', 'Voinea', 'van@yahoo.ceva', depid => 80);
+
+-- 17
+
+create or replace function nrPermutations (n number)
+    return number is
+        v_rez number := n;
+    begin
+        if v_rez = 0 then
+            return 1;
+        else
+            return v_rez * nrPermutations(v_rez - 1);
+        end if;
+    end;
+    /
+    
+variable g_perm number;
+execute :g_perm := nrPermutations(4);
+print g_perm;
+
+-- 18
+
+create or replace function isHigherThanAvg (p_sal employees.salary%type)
+    return boolean is
+        v_sal_total number;
+    begin
+        select avg(salary) into v_sal_total
+        from employees;
+        if p_sal > v_sal_total then
+            return true;
+        else return false;
+        end if;
+    end;
+    /
+
+set serveroutput on
+
+declare
+    type rec is record
+        (lname varchar2(255),
+        job_id varchar2(255),
+        salary number);
+    type tab_rec is table of rec;
+    v_rec tab_rec := tab_rec();
+begin
+    select last_name, job_id, salary bulk collect into v_rec
+    from employees;
+    
+    for i in 1..v_rec.count loop
+        if isHigherThanAvg(v_rec(i).salary) then
+            dbms_output.put_line(v_rec(i).lname || ' ' || v_rec(i).job_id || ' ' || v_rec(i).salary);
+        end if;
+    end loop;
+end;
+/
+
+-- 19
+
+select text
+from user_source
+where name = 'proc'
+order by line;
+
+select object_name, object_type, status
+from user_objects
+where object_type in ('proc');
+
+describe 'isHigherThanAvg';
+
+-- 1
+
+create or replace procedure recalc (p_bonus number)
+    is
+    begin
+        update emp_voinea e
+        set salary = salary + p_bonus
+        where (commission_pct is null or commission_pct = 0) and salary < (select avg(salary)
+                                                                            from emp_voinea
+                                                                            where department_id = e.department_id);
+    end;
+/
+execute recalc(100000);
+
+-- 2
+
+create or replace function nrSal (cod_man employees.manager_id%type)
+    return number is
+        v_nr number;
+    begin
+        select count(*) into v_nr
+        from employees
+        where hire_date > (select max(hire_date)
+                            from employees
+                            where manager_id = cod_man);
+        return v_nr;
+    end;
+    /
+
+declare
+    v_nr_sal number;
+begin
+    v_nr_sal := nrSal(101);
+    dbms_output.put_line(v_nr_sal);
+end;
+/
+
+-- 3
+
+declare
+    procedure insertLocation
+            (loc_id locations.location_id%type,
+            str locations.street_address%type,
+            postal locations.postal_code%type,
+            cty locations.city%type,
+            stat locations.state_province%type,
+            country locations.country_id%type)
+    is
+    begin
+        insert into locations values (loc_id, str, postal, cty, stat, country);
+    end;
+begin
+    insertLocation(locations_seq.nextval, 'alexandru lapusneanu', '068234', 'Galatz', 'Romania', 'UK');
+end;
+/
+
+-- 4
+
+set serveroutput on
+
+declare
+    v_rez number;
+    procedure procedur (p_rezultat out number, p_job_id in jobs2.job_id%type default null, p_job_title in jobs2.job_title%type default null)
+        is
+        begin
+            if p_job_id is not null then
+                select count(*) into p_rezultat
+                from employees
+                where job_id = p_job_id;
+                if p_rezultat = 0 then
+                    dbms_output.put_line('jobu nu exista.');
+                end if;
+            else
+                if p_job_title is not null then
+                    select count(*) into p_rezultat
+                    from employees join jobs2 using (job_id)
+                    where job_title = p_job_title;
+                else
+                    dbms_output.put_line('titlul e null.');
+                end if;
+            end if;
+        end;
+begin
+    procedur(v_rez, 'ST_CLERK');
+    dbms_output.put_line(v_rez);
+end;
+/
+
+select count(*)
+from employees
+where job_id = 'ST_CLERK';
+
+-- 6
+
+declare
+    v_rez1 number;
+    v_rez2 number;
+    v_rez3 number;
+    
+    function nrSal (dep_id number)
+        return number is
+        v_rez number;
+    begin
+        select count(*) into v_rez
+        from employees
+        where department_id = dep_id;
+        
+        return v_rez;
+    end;
+    
+    function nrSal (dep_id number, year number)
+        return number is
+        v_rez number;
+    begin
+        select count(*) into v_rez
+        from employees
+        where department_id = dep_id and to_char(hire_date, 'yyyy') = year;
+        
+        return v_rez;
+    end;
+    
+    function nrSal (dep_id number, year number, sal_inf number, sal_sup number)
+        return number is
+        v_rez number;
+    begin
+        select count(*) into v_rez
+        from employees
+        where department_id = dep_id and to_char(hire_date, 'yyyy') = year
+        and salary between sal_inf and sal_sup;
+        
+        return v_rez;
+    end;
+begin
+    v_rez1 := nrSal(50);
+    v_rez2 := nrSal(50, 1999);
+    v_rez3 := nrSal(50, 1999, 1000, 5000);
+    dbms_output.put_line(v_rez1);
+    dbms_output.put_line(v_rez2);
+    dbms_output.put_line(v_rez3);
+end;
+/
+
+-- 7
+
+create or replace function calcRec (n integer, k integer)
+    return number is
+        v_rez number;
+    begin
+        if k = 1 then
+            return n;
+        elsif k = n then
+            return 1;
+        else
+            return calcRec(n-1,k-1) + calcRec(n-1, k);
+        end if;
+    end;
+    /
+
+variable g_comb number;
+execute :g_comb := calcRec(10,6);
+print g_comb;
+
+-- 8
+
+create or replace procedure schimbareSal (cod_ang number, cod_dep number)
+    is
+    begin
+        update employees
+        set salary = (select avg(salary) from employees where nvl(commission_pct,0) != 0  and department_id = cod_dep)
+        where employee_id = cod_ang;
+    end;
+    /
+execute schimbareSal (119, 80);
+
+-- 9
+
+create or replace function vechime (cod_ang number)
+    return number is
+        v_rez number;
+    begin
+        select trunc(months_between(sysdate, hire_date)) into v_rez
+        from employees
+        where employee_id = cod_ang;
+        return v_rez;
+    end;
+    /
+    
+
+select last_name, first_name, salary, vechime(employee_id)
+from employees;

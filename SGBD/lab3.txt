@@ -1,0 +1,629 @@
+----- Lab 3
+-- 1
+
+set serveroutput on
+
+declare
+    v_sal_user emp_voinea.salary%type := &salariu;
+    type tablou_indexat is table of emp_voinea.employee_id%type index by pls_integer;
+    tab_id tablou_indexat;
+begin
+    select employee_id bulk collect into tab_id
+    from emp_voinea
+    where salary < v_sal_user;
+    
+    forall i in 1..tab_id.count
+        update emp_voinea
+        set commission_pct = commission_pct + 0.1
+        where employee_id = tab_id(i);
+    
+    if sql%found then
+        dbms_output.put_line('Au fost afectate ' || sql%rowcount);
+    else
+        dbms_output.put_line('N-a fost afectata nicio linie');
+    end if;
+end;
+/
+
+-- 2
+
+set verify off
+
+create table dep_emp_pnu (cod_dep number, cod_ang number);
+/
+
+set serveroutput on
+
+declare
+    type tab_imb is table of number;
+    v_coduri_dep tab_imb := tab_imb();
+begin
+    select unique department_id bulk collect into v_coduri_dep
+    from emp_voinea;
+    
+    forall i in 1..v_coduri_dep.count
+        insert into dep_emp_pnu
+        select department_id, employee_id
+        from emp_voinea
+        where department_id = v_coduri_dep(i);
+        
+    for i in 1..v_coduri_dep.count loop
+        dbms_output.put_line('Pentru departamentul ' || v_coduri_dep(i) || ' au fost introdusi ' || sql%bulk_rowcount(i));
+    end loop;
+    
+    dbms_output.put_line('Numarul total de inregistrari inserate este ' || sql%rowcount);
+    
+end;
+/
+
+-- 3
+
+set serveroutput on
+
+declare
+    cursor ang is select last_name, salary*12 sal_an from emp_voinea where department_id = 50;
+    v_last_name emp_voinea.last_name%type;
+    v_salary emp_voinea.salary%type;
+    v_ver number;
+begin
+--    open ang;
+--    fetch ang into v_last_name, v_salary;
+--    while ang%found loop
+--        dbms_output.put_line(v_last_name || ' are salariu anual ' || v_salary);
+--        fetch ang into v_last_name, v_salary;
+--    end loop;
+--        dbms_output.put_line(ang%rowcount);
+--        select count(*) into v_ver from emp_voinea where department_id = 50;
+--        dbms_output.put_line(v_ver);
+--    close ang;
+    
+--    open ang;
+--    loop
+--        fetch ang into v_last_name, v_salary;
+--        exit when ang%notfound;   
+--        dbms_output.put_line(v_last_name || ' are salariu anual ' || v_salary);
+--    end loop;
+--    dbms_output.put_line(ang%rowcount);
+--    close ang;
+
+--    for pers in ang loop
+--        dbms_output.put_line(pers.last_name || ' are salariul anual ' || pers.sal_an);
+--    end loop;
+
+    for pers in (select last_name, salary*12 sal_an from emp_voinea where department_id = 50) loop
+            dbms_output.put_line(pers.last_name || ' are salariul anual ' || pers.sal_an);
+    end loop;
+end;
+/
+
+-- 4
+
+declare
+    cursor ang is
+        select last_name, salary
+        from emp_voinea
+        where salary < 7000;
+    v_ang ang%rowtype;
+begin
+    open ang;
+    loop
+        fetch ang into v_ang;
+        dbms_output.put_line(v_ang.last_name || ' castiga ' || v_ang.salary);
+    exit when ang%notfound;
+    end loop;
+    dbms_output.put_line(ang%rowcount);
+end;
+/
+
+begin
+    for angajat in (select last_name, salary from emp_voinea where salary < 7000) loop
+        dbms_output.put_line(angajat.last_name || ' castiga ' || angajat.salary);
+    end loop;
+end;
+/
+
+
+-- 5
+
+create table top_salarii_pnu(salary number);
+
+set serveroutput on
+
+accept p_num prompt '...'
+declare
+    v_num number := &p_num;
+    v_sal top_salarii_pnu.salary%type;
+    cursor emp_cursor is
+            select unique salary
+            from emp_voinea
+            order by salary desc;
+    v_total number;
+begin
+    select count(*) into v_total
+    from emp_voinea;
+    
+    if v_num = 0 then
+        dbms_output.put_line('n = 0. Introduceti alt n.');
+    elsif v_num > v_total then
+        dbms_output.put_line('n > nr de angajati. Introduceti alt n.');
+    else
+        open emp_cursor;
+        loop
+            fetch emp_cursor into v_sal;
+            
+            insert into top_salarii_pnu values(v_sal);
+            
+            dbms_output.put_line(v_sal);
+            exit when emp_cursor%rowcount = 10;
+        end loop;
+        close emp_cursor;
+    end if;
+end;
+/
+
+select *
+from top_salarii_pnu;
+
+-- 6 + 7
+
+set serveroutput on
+set verify off
+
+declare
+    cursor ang (cod_ang emp_voinea.employee_id%type) is
+        select last_name, salary
+        from emp_voinea
+        where employee_id = cod_ang or cod_ang is null;
+    
+    v_nume ang%rowtype;
+    
+    type tab_char is table of emp_voinea.last_name%type;
+    type tab_number is table of number;
+    v_tab_nume tab_char := tab_char();
+    v_tab_sal tab_number := tab_number();    
+begin
+    open ang(200);
+    loop
+        fetch ang into v_nume;
+        exit when ang%notfound;
+        dbms_output.put_line(v_nume.last_name || ' ' || v_nume.salary);
+    end loop;
+    close ang;
+
+    open ang(null);
+    v_tab_nume.extend;
+    v_tab_sal.extend;
+    loop
+        fetch ang into v_tab_nume(v_tab_nume.count), v_tab_sal(v_tab_sal.count);
+        exit when ang%notfound;
+        v_tab_nume.extend;
+        v_tab_sal.extend;
+    end loop;
+    close ang;
+    
+--    open ang(null);
+--    fetch ang bulk collect into v_tab_nume, v_tab_sal;
+--    close ang;
+    
+    v_tab_nume.trim;
+    v_tab_sal.trim;
+    
+    for i in 1..v_tab_nume.count loop
+        dbms_output.put_line(v_tab_nume(i) || ' ' || v_tab_sal(i));
+    end loop;
+end;
+/
+
+-- 7
+
+declare
+    cursor cod_ang (dep_id emp_voinea.department_id%type) is
+                    select employee_id, job_id
+                    from emp_voinea
+                    where department_id = dep_id;
+    type tab_char is table of varchar2(255);
+    v_mesaje tab_char := tab_char();
+    
+    type tab_dep is table of emp_voinea.department_id%type;
+    v_dep tab_dep := tab_dep();
+    
+    v_emp_id emp_voinea.employee_id%type;
+    v_job_id emp_voinea.job_id%type;
+begin
+    select unique department_id bulk collect into v_dep
+    from emp_voinea;
+    
+    for i in v_dep.first..v_dep.last loop
+        open cod_ang(v_dep(i));
+            loop
+                fetch cod_ang into v_emp_id, v_job_id;
+                exit when cod_ang%notfound;
+                v_mesaje.extend;
+                v_mesaje(v_mesaje.count) := 'In departamentul ' || v_dep(i) || ' avem angajatul ' 
+                || v_emp_id || ' care are codul ' || v_job_id;
+            end loop;
+        close cod_ang;
+    end loop;
+    
+    for i in v_mesaje.first..v_mesaje.last loop
+        dbms_output.put_line(v_mesaje(i));
+    end loop;
+end;
+/
+
+
+-- 8
+
+declare
+    cursor c_ang is
+        select employee_id
+        from emp_voinea
+        where hire_date < to_date('01-01-1995', 'dd-mm-yyyy') and commission_pct is null
+        for update of salary;
+    
+    type tab_num is table of emp_voinea.employee_id%type;
+    v_emp tab_num := tab_num();
+begin
+    for x in c_ang loop
+        update emp_voinea
+        set salary = 2*salary
+        where current of c_ang;
+    end loop;
+    commit;
+end;
+/
+
+-- 9
+
+accept locatie prompt 'locatie'
+declare
+    cursor c_dep (loc_id dept.location_id%type) is
+        select department_id
+        from dept
+        where location_id = loc_id
+        for update of department_id nowait;
+    v_loc dept.location_id%type := &locatie;
+begin
+    for i in c_dep(v_loc) loop
+        update dept
+        set location_id = 100
+        where current of c_dep;
+    end loop;
+end;
+/
+
+-- 11
+set serveroutput on
+
+accept optiune prompt 'Alegeti o optiune (1, 2 sau 3).'
+declare
+    type ref_curs is ref cursor return emp_voinea%rowtype;
+    v_cursor ref_curs;
+    v_optiune number := &optiune;
+    v_angajat emp_voinea%rowtype;
+begin
+    if v_optiune = 1 then
+        open v_cursor for 
+            select * from emp_voinea;
+        loop
+            fetch v_cursor into v_angajat;
+            exit when v_cursor%notfound;
+            dbms_output.put_line(v_angajat.employee_id);
+        end loop;
+        close v_cursor;
+    elsif v_optiune = 2 then
+        open v_cursor for
+            select * from emp_voinea where salary between 10000 and 20000;
+        loop
+            fetch v_cursor into v_angajat;
+            exit when v_cursor%notfound;
+            dbms_output.put_line(v_angajat.employee_id);
+        end loop;
+        close v_cursor;
+    elsif v_optiune = 3 then
+        open v_cursor for
+            select * from emp_voinea where to_char(hire_date, 'yyyy') = '1990';
+        loop
+            fetch v_cursor into v_angajat;
+            exit when v_cursor%notfound;
+            dbms_output.put_line(v_angajat.employee_id);
+        end loop;
+        close v_cursor;
+    
+    else dbms_output.put_line ('Optiunea trebuie sa fie intre 1,2 si 3.');
+    end if;
+end;
+/
+
+
+-- 12
+
+set serveroutput on
+
+declare
+    n number := &n;
+    type ref_curs is ref cursor; -- return (emp_voinea.salary%type, emp_voinea.commission_pct%type);
+    v_my_cursor ref_curs;
+    
+    type rec is record
+        (v_emp_id emp_voinea.employee_id%type,
+        v_last_name emp_voinea.last_name%type,
+        v_com_pct emp_voinea.commission_pct%type,
+        v_sal emp_voinea.salary%type);
+    v_ang rec;
+begin
+    open v_my_cursor for
+        'select employee_id, last_name, commission_pct, salary from emp_voinea where salary > :bind_n'
+        using n;
+    loop
+        fetch v_my_cursor into v_ang;
+        exit when v_my_cursor%notfound;
+        if v_ang.v_com_pct is not null then
+            dbms_output.put_line(v_ang.v_last_name || ' ' || v_ang.v_sal);
+        end if;
+    end loop;
+    close v_my_cursor;
+end;
+/
+
+-- 13
+
+set serveroutput on
+
+declare
+    cursor c_reg is
+        select region_id, region_name
+        from regions;
+begin
+    for x in c_reg loop
+        dbms_output.put_line(x.region_id || ' ' || x.region_name);
+    end loop;
+end;
+/
+
+
+set serveroutput on
+declare
+    cursor c_reg is
+        select r.region_id, (cursor (select country_name from countries where region_id = r.region_id))
+        from regions r;
+    v_reg regions.region_id%type;
+    type refc is ref cursor;
+    v_cv refc;
+    type tabb is table of countries.country_name%type;
+    v_tari tabb := tabb();
+begin
+    open c_reg;
+    loop
+        fetch c_reg into v_reg, v_cv;
+        exit when c_reg%notfound;
+        dbms_output.put_line('Regiunea ' || v_reg || ' are urmatoarele tari:');
+        fetch v_cv bulk collect into v_tari;
+        for i in 1..v_tari.count loop
+            dbms_output.put_line(v_tari(i));
+        end loop;
+    end loop;
+    close c_reg;
+end;
+/
+
+
+-- ex propuse
+-- 1
+
+set serveroutput on
+
+declare
+    cursor c_dep is
+        select department_id, round(avg(salary),2) sal
+        from employees
+        group by department_id;
+begin
+    for x in c_dep loop
+        dbms_output.put_line(nvl(x.department_id, 0) || ' ' || x.sal);
+    end loop;
+end;
+/
+
+declare
+    cursor c_dep is
+        select department_id, round(avg(salary),2) sal
+        from employees
+        group by department_id;
+    v_dep employees.department_id%type;
+    v_sal employees.salary%type;
+begin
+    open c_dep;
+    loop
+        fetch c_dep into v_dep, v_sal;
+        exit when c_dep%notfound; 
+        if v_dep is null then
+            dbms_output.put_line('Fara departament, media salariilor este ' || v_sal);
+        else
+            dbms_output.put_line('In departamentul ' || v_dep || ' media salariilor este ' || v_sal);
+        end if;
+    end loop;
+    close c_dep;
+end;
+/
+
+-- 2
+
+declare
+    cursor c_ang is
+        select *
+        from emp_voinea
+        order by last_name, first_name;
+    v_ang c_ang%rowtype;
+begin
+    open c_ang;
+    loop
+        fetch c_ang into v_ang;
+        dbms_output.put_line(v_ang.last_name || ' ' || v_ang.first_name || ' ' || v_ang.employee_id);
+        exit when c_ang%rowcount = 5;
+    end loop;
+    close c_ang;
+end;
+/
+
+-- 3
+
+set serveroutput on
+set verify off
+
+accept nr prompt 'Primii N cei mai bine platiti salariati';
+declare
+    cursor c_sal is
+        select unique salary
+        from emp_voinea
+        order by salary desc;
+    cursor c_ang (sal emp_voinea.salary%type) is
+        select *
+        from emp_voinea
+        where salary = sal;
+        
+    type tab_sal is table of emp_voinea.salary%type;
+    v_tab_sal tab_sal := tab_sal();
+    n number := &nr;
+begin
+    open c_sal;
+    fetch c_sal bulk collect into v_tab_sal;
+    close c_sal;
+    for i in 1..n loop
+        for ang in c_ang(v_tab_sal(i)) loop
+            dbms_output.put_line(ang.last_name || ' ' || ang.first_name || ' ' || ang.salary);
+        end loop;
+    end loop;
+    
+end;
+/
+
+-- 4
+
+create table mesaje (job_name varchar2(255), last_name varchar2(255));
+
+declare
+    cursor c_job is
+        select distinct job_id
+        from emp_voinea;
+    cursor c_ang (j_id emp_voinea.job_id%type) is
+        select last_name
+        from emp_voinea
+        where job_id = j_id;
+    v_job_id emp_voinea.job_id%type;
+    v_last_name emp_voinea.last_name%type;
+begin
+    open c_job;
+    loop
+        fetch c_job into v_job_id;
+        exit when c_job%notfound;
+        open c_ang(v_job_id);
+        loop
+            fetch c_ang into v_last_name;
+            exit when c_ang%notfound;
+            insert into mesaje values (v_job_id, v_last_name);
+        end loop;
+        close c_ang;
+    end loop;
+    close c_job;
+end;
+/
+
+-- 5
+
+set serveroutput on
+set verify off
+
+declare
+    cursor c_dept is
+        select department_id, department_name
+        from dept
+        where department_id < 100;
+    cursor c_ang (dept_id dept.department_id%type) is
+        select job_id, hire_date, salary, last_name
+        from employees
+        where employee_id <= 120 and department_id = dept_id;
+    v_dept_id dept.department_id%type;
+    v_dept_name dept.department_name%type;
+    v_ang c_ang%rowtype;
+begin
+    open c_dept;
+    loop
+        fetch c_dept into v_dept_id, v_dept_name;
+        exit when c_dept%notfound;
+        if c_ang%isopen then
+            close c_ang;
+        end if;
+        open c_ang(v_dept_id);
+        loop
+            fetch c_ang into v_ang;
+            exit when c_ang%notfound;
+            dbms_output.put_line('In departamentul ' || v_dept_name || ' cu id-ul ' || v_dept_id
+            || ' se afla ' || v_ang.last_name || ' cu ' || v_ang.salary || ' ' || v_ang.job_id);
+        end loop;
+    end loop;
+    close c_dept;
+end;
+/
+
+ -- 6
+ 
+accept p_dep prompt 'Codul de departament este = ';
+declare
+    v_dep dept.department_id%type := &p_dep;
+    cursor emp_cursor is
+        select last_name, salary, manager_id
+        from emp_voinea
+        where department_id = v_dep;
+    v_ang emp_cursor%rowtype;
+begin
+    open emp_cursor;
+    loop
+        fetch emp_cursor into v_ang;
+        exit when emp_cursor%notfound;
+        if v_ang.salary < 5000 and (v_ang.manager_id = 101 or v_ang.manager_id = 124) then
+            dbms_output.put_line(v_ang.last_name || ' va fi propus pentru marire.' || v_ang.salary);
+        else
+            dbms_output.put_line(v_ang.last_name || ' nu va fi propus pentru maririe.' || v_ang.salary);
+        end if;
+    end loop;
+    close emp_cursor;
+end;
+/
+
+-- 7
+
+set serveroutput on
+set verify off
+
+declare
+    cursor c_ang (dep emp_voinea.department_id%type) is
+        select salary, first_name, last_name
+        from emp_voinea
+        where department_id = dep
+        for update of salary nowait;
+    v_dep number := &departament;
+    v_ang c_ang%rowtype;
+begin
+    if v_dep in (20, 60, 80, 100) then
+        open c_ang(v_dep);
+        loop
+            fetch c_ang into v_ang;
+            exit when c_ang%notfound;
+            case
+                when v_ang.salary < 6500 then v_ang.salary := 1.2 * v_ang.salary;
+                when v_ang.salary between 6500 and 9500 then v_ang.salary := 1.15 * v_ang.salary;
+                when v_ang.salary between 9501 and 12000 then v_ang.salary := 1.08 * v_ang.salary;
+                when v_ang.salary > 12000 then v_ang.salary := 1.03 * v_ang.salary;
+            end case;
+            update emp_voinea
+            set salary = v_ang.salary
+            where last_name = v_ang.last_name and first_name = v_ang.first_name;
+        end loop;
+        dbms_output.put_line(c_ang%rowcount);
+        close c_ang;
+    else
+        dbms_output.put_line ('Niciun departament care poate facilita.');
+    end if;
+end;
+/
