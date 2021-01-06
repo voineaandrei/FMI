@@ -1,0 +1,244 @@
+---- Laboratorul 5 ----
+-- 1 --
+
+set serveroutput on
+
+create or replace trigger b_i_emp_voinea
+before insert on emp_voinea
+begin
+    if (to_char(sysdate, 'dy') in ('sat', 'sun')) or (to_char(sysdate, 'hh24:mi') not between '08:00' and '18:00')
+    then
+        raise_application_error (-20500, 'Nu se pot introduce inregistrari decat in timpul orelor de lucru.');
+    end if;
+end;
+/
+
+alter trigger b_i_emp_voinea disable;
+
+INSERT INTO emp_voinea (employee_id, last_name, first_name, email, hire_date, job_id, salary, department_id)
+VALUES (301, 'Smith', 'Robert', 'rsmith', SYSDATE+4, 'IT_PROG', 4500, 60);
+
+-- 2 --
+
+create or replace trigger b_i_emp_voinea
+before insert or update or delete on emp_voinea
+begin
+    IF (TO_CHAR(SYSDATE, 'dy') IN ('sat', 'sun')) OR
+(TO_CHAR(SYSDATE, 'HH24:MI') NOT BETWEEN '08:00' AND '18:00')
+    THEN
+        if deleting then
+            raise_application_error(-20500, 'Nu se pot sterge inregistrari in afara orelor de lucru.');
+        elsif inserting then
+            raise_application_error(-20500, 'Nu se pot adauga inregistrari decat in timpul orelor...');
+        elsif updating then
+            raise_application_error(-20500, 'Nu se poate...');
+        end if;
+    end if;
+end;
+/
+-- 3 --
+
+create or replace trigger bogatz
+before insert or update of salary on emp_voinea
+for each row
+begin
+    if :new.job_id not in ('AD_PRES', 'AD_VP') and :new.salary > 15000 then
+        raise_application_error(-20500, 'remain poor');
+    end if;
+end;
+/
+
+alter trigger bogatz disable;
+
+update emp_voinea
+set salary = 15001
+where employee_id = 120;
+
+-- 4 --
+
+-- var 1 --
+create or replace trigger bogatz2
+before update of salary on emp_voinea
+for each row
+begin
+    if :new.salary < :old.salary then
+        raise_application_error(-20500, 'protejati-va de saracie');
+    end if;
+end;
+/
+
+drop trigger bogatz2;
+
+-- var 2 --
+create or replace trigger bogatz2
+before update of salary on emp_voinea
+for each row
+when (new.salary < old.salary)
+begin
+    raise_application_error(-20500, 'protejati-va de saracie');
+end;
+/
+drop trigger bogatz2;
+
+-- var 3 --
+create or replace procedure eroare_de_sarac is
+begin
+    raise_application_error(-20500, 'oh no. anyway...');
+end;
+/
+
+create or replace trigger bogatz2
+before update of salary on emp_voinea
+for each row
+when (new.salary < old.salary)
+CALL eroare_de_sarac
+/
+
+drop trigger bogatz2;
+
+-- 5 --
+
+create or replace trigger calc_com
+before insert or update of salary on emp_voinea
+for each row
+when (new.job_id = 'SA_REP')
+begin
+    if inserting then
+        :new.commission_pct := 0;
+    elsif :old.commission_pct is null then
+        :new.commission_pct := 0;
+    else
+        :new.commission_pct := :old.commission_pct * (:new.salary/:old.salary);
+    end if;
+end;
+/
+
+-- 6 --
+
+create or replace trigger sal_min_max
+    before update of min_salary, max_salary on jobs2
+    for each row
+declare
+    v_min_sal emp_voinea.salary%type;
+    v_max_sal emp_voinea.salary%type;
+    e_invalid exception;
+begin
+    select min(salary), max(salary)
+    into v_min_sal, v_max_sal
+    from emp_voinea
+    where job_id = :new.job_id;
+    
+    if (v_min_sal < :new.min_salary) or (v_max_sal > :new.max_salary) then 
+        raise e_invalid;
+    end if;
+exception
+    when e_invalid then
+        raise_application_error(-20500, 'exista angajati ...');
+end;
+/
+
+alter trigger sal_min_max disable;
+
+-- 7 --
+
+create or replace trigger check_sal_voinea
+    before insert or update of salary, job_id on emp_voinea
+    for each row
+    when (new.job_id != 'AD_PRES')
+declare
+    v_min_sal emp_voinea.salary%type;
+    v_max_sal emp_voinea.salary%type;
+begin
+    select min(salary), max(salary)
+    into v_min_sal, v_max_sal
+    from employees -- emp_voinea
+    where job_id = :new.job_id;
+    
+    if :new.salary not between v_min_sal and v_max_sal then
+        raise_application_error(-20500, 'Salariul nu corespunde');
+    end if;
+end;
+/
+
+update emp_voinea
+set salary = 3500
+where last_name = 'Stiles';
+
+-- 8 --
+
+alter table dept
+add (total_sal number(11,2));
+
+update dept
+set total_sal = (select sum(salary)
+                from employees
+                where department_id = dept.department_id);
+                
+                
+create or replace procedure creste_total_pnu ( v_cod_dep IN dept.department_id%type,
+                                                v_sal in dept.total_sal%type) is
+begin
+    update dept
+    set total_sal = NVL (total_sal, 0) + v_sal
+    where department_id = v_cod_dep;
+end;
+/
+
+create or replace trigger calcul_total_pnu
+before insert or delete or update of salary on emp_voinea
+for each row
+begin
+    if inserting then
+        creste_total_pnu(:new.department_id, :new.salary);
+    elsif deleting then
+        creste_total_pnu(:old.department_id, -1 * :old.salary);
+    else
+        creste_total_pnu(:new.department_id, :new.salary - :old.salary);
+    end if;
+end;
+/
+
+-- 9 --
+
+-- pass, e cu view
+
+-- 10 --
+
+create or replace trigger limita_dep
+before insert on emp_voinea
+for each row
+declare
+    v_numar number;
+begin
+    select count(*)
+    into v_numar
+    from employees
+    where department_id = :new.department_id;
+    
+    if v_numar > 50 then
+        raise_application_error (-20500, 'prea multi angajati');
+    end if;
+end;
+/
+
+-- 11 --
+
+create or replace trigger clicdreaptadelete
+    before delete or update of department_id on dept
+    for each row
+begin
+    if deleting then
+        delete from emp_voinea
+        where department_id = :old.department_id;
+    end if;
+    if updating and :old.department_id != :new.department_id then
+        update emp_voinea
+        set department_id = :new.department_id
+        where department_id = :old.department_id;
+    end if;
+end;
+/
+
+
+delete from dept
+where department_id = 10;
