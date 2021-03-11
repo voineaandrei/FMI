@@ -1,2 +1,2 @@
 # romanian-sub-dialect-identification
-The project for the Artificial Intelligence course.
+The project for the Artificial Intelligence course - 2020.
