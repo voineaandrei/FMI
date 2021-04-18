@@ -1,0 +1,2 @@
+To encrypt/decrypt a file in ECB mode, you have to change the lines 19/87:
+from "cipher = Cipher(algorithms.AES(secret_key), modes.CBC(IV))" to "cipher = Cipher(algorithms.AES(secret_key), modes.ECB())"
